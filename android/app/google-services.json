@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "78529643359",
+    "firebase_url": "https://urdesk-a1031-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "urdesk-a1031",
+    "storage_bucket": "urdesk-a1031.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:78529643359:android:d0b2aec6e02a8ad6fa6cea",
+        "android_client_info": {
+          "package_name": "com.example.urdesk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYa9bA69JUTaB-d8PcP27LllabTfi3DA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
