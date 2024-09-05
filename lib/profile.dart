@@ -1,9 +1,8 @@
-// ignore_for_file: unused_field, prefer_const_constructors, unused_element, prefer_final_fields
+// ignore_for_file: unused_field, prefer_const_constructors, unused_element, prefer_final_fields, prefer_const_literals_to_create_immutables
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -71,10 +70,11 @@ class _ProfileState extends State<Profile> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            backgroundColor: Color.fromARGB(95, 46, 46, 46),
+            backgroundColor: Colors.black,
             title: Text(
               "Konfirmasi Logout",
-              style: TextStyle(color: Colors.white),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             content: Text(
               "Apakah anda yakin ingin logout?",
@@ -232,6 +232,7 @@ class _ProfileState extends State<Profile> {
                 crossAxisCount: 2, // 2 columns of images
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
+                childAspectRatio: 16 / 9,
               ),
               itemCount: _imageUrls.length,
               itemBuilder: (context, index) {

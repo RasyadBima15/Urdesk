@@ -48,7 +48,8 @@ class CloudApi {
       final bucket = storage.bucket(bucketName);
 
       // Gabungkan folderPrefix dengan nama file untuk menyimulasikan struktur folder
-      final fullPath = folderPrefix!.isNotEmpty ? '$folderPrefix/$name' : name;
+      final fullPath =
+          folderPrefix!.isNotEmpty ? 'images/$folderPrefix/$name' : name;
 
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final type = lookupMimeType(name!);

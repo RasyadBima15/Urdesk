@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:urdesk/landing.dart';
 
 class Result extends StatelessWidget {
   final File? imageTop;
@@ -82,7 +83,7 @@ class Result extends StatelessWidget {
           backgroundColor: Colors.black,
           title: Text(
             'Konfirmasi Posting',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           content: Text(
             'Apakah Anda yakin ingin memposting kedua gambar?',
@@ -100,10 +101,21 @@ class Result extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop();
                 // Lakukan aksi posting gambar di sini
                 // tambahkan method _saveImageMetadata dan _uploadImageToFirebase
                 try {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.purple,
+                        ),
+                      );
+                    },
+                  );
+
                   // Upload kedua gambar
                   String downloadUrlTop =
                       await _uploadImageToFirebase(imageTop!, fileTop!);
@@ -128,15 +140,19 @@ class Result extends StatelessWidget {
                     textColor: Colors.white,
                     fontSize: 16.0,
                   );
+
+                  Navigator.of(context).pop();
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => LandingPage()),
+                    (Route<dynamic> route) => false,
+                  );
                 } catch (e) {
+                  Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error saat memposting gambar: $e')),
                   );
                 }
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gambar diposting!')),
-                );
               },
               child: Text(
                 'Ya',
