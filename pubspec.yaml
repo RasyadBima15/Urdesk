@@ -45,6 +45,9 @@ dependencies:
   googleapis_auth: ^1.6.0
   flutter_dotenv: ^5.1.0
   firebase_storage: ^12.2.0
+  path_provider: 
+  flutter_downloader: 
+  permission_handler: 
 
 dev_dependencies:
   flutter_test:

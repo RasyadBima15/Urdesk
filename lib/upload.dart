@@ -113,6 +113,7 @@ class _UploadState extends State<Upload> {
   void _openCameraButton(String cameraAngle, bool isTop) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (ctx) => ModalBottonUI(
         onCameraTap: () async {
           await getImageFromCamera(
@@ -331,80 +332,101 @@ class ModalBottonUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(15),
-      height: 225,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Color.fromARGB(255, 46, 46, 46),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(15),
-          topRight: Radius.circular(15),
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.all(15),
+        height: 240,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 46, 46, 46),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(15),
+            topRight: Radius.circular(15),
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.camera_alt,
-                color: Colors.white,
-                size: 40,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.camera_alt,
+                      color: Colors.white,
+                      size: 35,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      cameraAngle,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+                IconButton(
+                  icon: Icon(Icons.close, color: Colors.white), // "X" icon
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the modal
+                  },
+                ),
+              ],
+            ),
+            Divider(
+              color: Colors.grey,
+              thickness: 0.1,
+            ),
+            SizedBox(height: 15),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.purple,
+                backgroundColor: Colors.purple,
+                padding: EdgeInsets.symmetric(horizontal: 69, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              SizedBox(width: 10),
-              Text(
-                cameraAngle,
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              )
-            ],
-          ),
-          SizedBox(height: 15),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.purple,
-              backgroundColor: Colors.purple,
-              padding: EdgeInsets.symmetric(horizontal: 69, vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              onPressed: () async {
+                await onCameraTap(); // Tunggu operasi selesai
+                onClose(); // Tutup modal setelah operasi selesai
+              },
+              child: Text(
+                'Ambil Gambar',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            onPressed: () async {
-              await onCameraTap(); // Tunggu operasi selesai
-              onClose(); // Tutup modal setelah operasi selesai
-            },
-            child: Text(
-              'Ambil Gambar',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
+            SizedBox(height: 15),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.purple,
+                backgroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () async {
+                await onGalleryTap(); // Tunggu operasi selesai
+                onClose(); // Tutup modal setelah operasi selesai
+              },
+              child: Text(
+                'Pilih dari Gallery',
+                style: TextStyle(
+                  color: Colors.purple,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 15),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.purple,
-              backgroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () async {
-              await onGalleryTap(); // Tunggu operasi selesai
-              onClose(); // Tutup modal setelah operasi selesai
-            },
-            child: Text(
-              'Pilih dari Gallery',
-              style: TextStyle(
-                color: Colors.purple,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
