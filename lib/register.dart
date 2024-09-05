@@ -1,8 +1,10 @@
 // ignore_for_file: unnecessary_string_interpolations, use_build_context_synchronously, prefer_const_constructors, use_key_in_widget_constructors, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'login.dart'; // Import the login screen
 import 'services/auth_service.dart'; // Import AuthService
+import 'package:firebase_database/firebase_database.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -33,9 +35,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       await _authService.signup(
           email: email, password: password, username: username);
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text("Registration successful!")),
-      // );
+      Fluttertoast.showToast(
+        msg: "Registration successful!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),

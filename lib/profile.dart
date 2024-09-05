@@ -1,4 +1,7 @@
+// ignore_for_file: unused_field, prefer_const_constructors
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -8,9 +11,33 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  String? _username;
+
   @override
   void initState() {
     super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    String? username = await getUsername();
+    setState(() {
+      _username = username ?? 'Unknown User';
+    });
+  }
+
+  Future<String?> getUsername() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final uid = user.uid;
+      final databaseReference = FirebaseDatabase.instance.ref('users/$uid');
+      final snapshot = await databaseReference.get();
+      if (snapshot.exists) {
+        final data = snapshot.value as Map;
+        return data['username'] as String?;
+      }
+    }
+    return null;
   }
 
   void _showDialog() {
@@ -129,8 +156,8 @@ class _ProfileState extends State<Profile> {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           fit: BoxFit.cover,
-                          image:
-                              AssetImage("images/depan.png"), // Profil picture
+                          image: AssetImage(
+                              "images/user_logo.jpg"), // Profil picture
                         ),
                       ),
                     ),
@@ -161,7 +188,7 @@ class _ProfileState extends State<Profile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Rasyad Bimasatya", // Nama pengguna
+                        _username ?? "", // Menampilkan username dari Firebase
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.white,

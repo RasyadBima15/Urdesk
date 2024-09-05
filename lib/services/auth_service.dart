@@ -3,8 +3,6 @@ import 'package:firebase_database/firebase_database.dart';
 // import 'package:flutter/material.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
 
-final databaseReference = FirebaseDatabase.instance.ref('users');
-
 class AuthService {
   Future<void> signup({
     required String email,
@@ -16,6 +14,8 @@ class AuthService {
           .createUserWithEmailAndPassword(email: email, password: password);
 
       String uid = userCredential.user!.uid;
+      DatabaseReference databaseReference =
+          FirebaseDatabase.instance.ref('users');
       await databaseReference.child(uid).set({
         'username': username,
       });

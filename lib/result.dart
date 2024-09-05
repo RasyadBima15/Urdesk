@@ -5,6 +5,49 @@ import 'package:flutter/material.dart';
 class Result extends StatelessWidget {
   const Result({super.key});
 
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text(
+            'Konfirmasi Posting',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin memposting kedua gambar?',
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: Text(
+                'Batal',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+                // Lakukan aksi posting gambar di sini
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Gambar diposting!')),
+                );
+              },
+              child: Text(
+                'Ya',
+                style: TextStyle(color: Colors.purple),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +79,7 @@ class Result extends StatelessWidget {
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
             _buildCriteriaCard(3, 'Keberadaan Objek yang Tercecer',
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
-            _buildCriteriaCard(4, 'Kepadatan Objek Tidak Dihendaki',
+            _buildCriteriaCard(4, 'Objek Yang Tidak Dihendaki',
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
             _buildCriteriaCard(5, 'Kehadiran Sampah',
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
@@ -75,6 +118,7 @@ class Result extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Post action here
+                  _showConfirmationDialog(context);
                 },
                 style: ElevatedButton.styleFrom(
                   padding:

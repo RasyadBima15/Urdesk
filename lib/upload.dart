@@ -154,19 +154,19 @@ class _UploadState extends State<Upload> {
         },
       );
 
-      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      // final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
       // Upload images if they exist
-      if (imageTop != null) {
-        final fileName = '${timestamp}_top.jpg'; // Updated filename format
-        await api!.save(fileName, await imageTop!.readAsBytes(),
-            folderPrefix: timestamp);
-      }
-      if (imageFront != null) {
-        final fileName = '${timestamp}_front.jpg'; // Updated filename format
-        await api!.save(fileName, await imageFront!.readAsBytes(),
-            folderPrefix: timestamp);
-      }
+      // if (imageTop != null) {
+      //   final fileName = '${timestamp}_top.jpg'; // Updated filename format
+      //   await api!.save(fileName, await imageTop!.readAsBytes(),
+      //       folderPrefix: timestamp);
+      // }
+      // if (imageFront != null) {
+      //   final fileName = '${timestamp}_front.jpg'; // Updated filename format
+      //   await api!.save(fileName, await imageFront!.readAsBytes(),
+      //       folderPrefix: timestamp);
+      // }
     } catch (e) {
       print('Error during image analysis: $e');
       Fluttertoast.showToast(

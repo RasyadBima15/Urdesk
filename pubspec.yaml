@@ -38,12 +38,13 @@ dependencies:
   firebase_core: ^3.3.0
   firebase_auth: ^5.1.4
   fluttertoast: ^8.2.8 
-  firebase_database: ^11.0.4
+  firebase_database: ^11.1.1
   image_picker: ^1.1.2
   image_cropper: ^8.0.2
   gcloud: ^0.8.12
   googleapis_auth: ^1.6.0
   flutter_dotenv: ^5.1.0
+  firebase_storage: ^12.2.0
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,7 @@ flutter:
     - images/depan.png
     - images/atas.png
     - images/urdesk-44d539a7521e.json
+    - images/user_logo.jpg
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
