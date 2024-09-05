@@ -1,9 +1,78 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_element
 
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Result extends StatelessWidget {
-  const Result({super.key});
+  final File? imageTop;
+  final File? imageFront;
+  final String? fileTop;
+  final String? fileFront;
+  final String? timestamp;
+
+  const Result(
+      {Key? key,
+      required this.imageTop,
+      required this.imageFront,
+      required this.fileTop,
+      required this.fileFront,
+      required this.timestamp})
+      : super(key: key);
+
+  Future<String> _uploadImageToFirebase(File imageFile, String fileName) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      String uid = user!.uid; // Mendapatkan uid pengguna
+
+      // Menyimpan file gambar di folder berdasarkan uid pengguna
+      Reference storageRef =
+          FirebaseStorage.instance.ref().child("images/$uid/$fileName");
+
+      // Upload gambar ke Firebase Storage
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+
+      // Tunggu hingga upload selesai
+      TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+
+      // Mendapatkan URL download gambar
+      String downloadURL = await snapshot.ref.getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      throw Exception("Error uploading image: $e");
+    }
+  }
+
+  Future<void> _saveImageMetadata(
+      {required String imageUrl,
+      required String rating,
+      required String timestamp}) async {
+    final user = FirebaseAuth.instance.currentUser;
+    String uid = user!.uid;
+
+    // Mendapatkan referensi ke data pengguna di Firebase Database
+    final databaseReference = FirebaseDatabase.instance.ref('images/$uid');
+
+    // Ambil username dari database
+    final userRef = FirebaseDatabase.instance.ref('users/$uid');
+    final snapshot = await userRef.get();
+    if (snapshot.exists) {
+      final data = snapshot.value as Map;
+      String username = data['username'];
+
+      // Simpan metadata gambar di Firebase Database
+      await databaseReference.push().set({
+        'imageUrl': imageUrl,
+        'rating': rating,
+        'username': username,
+        'timestamp': timestamp,
+      });
+    }
+  }
 
   void _showConfirmationDialog(BuildContext context) {
     showDialog(
@@ -30,9 +99,41 @@ class Result extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+              onPressed: () async {
+                Navigator.of(context).pop();
                 // Lakukan aksi posting gambar di sini
+                // tambahkan method _saveImageMetadata dan _uploadImageToFirebase
+                try {
+                  // Upload kedua gambar
+                  String downloadUrlTop =
+                      await _uploadImageToFirebase(imageTop!, fileTop!);
+                  String downloadUrlFront =
+                      await _uploadImageToFirebase(imageFront!, fileFront!);
+
+                  // Simpan metadata gambar untuk keduanya
+                  await _saveImageMetadata(
+                      imageUrl: downloadUrlTop,
+                      rating: '4',
+                      timestamp: timestamp!);
+                  await _saveImageMetadata(
+                      imageUrl: downloadUrlFront,
+                      rating: '4',
+                      timestamp: timestamp!);
+
+                  Fluttertoast.showToast(
+                    msg: 'Gambar berhasil diposting!',
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error saat memposting gambar: $e')),
+                  );
+                }
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Gambar diposting!')),
                 );
@@ -106,8 +207,7 @@ class Result extends StatelessWidget {
                       Icon(Icons.star, color: Colors.yellow, size: 32),
                       Icon(Icons.star, color: Colors.yellow, size: 32),
                       Icon(Icons.star, color: Colors.yellow, size: 32),
-                      Icon(Icons.star, color: Colors.yellow, size: 32),
-                      Icon(Icons.star_border, color: Colors.yellow, size: 33),
+                      Icon(Icons.star_border, color: Colors.yellow, size: 32),
                     ],
                   ),
                 ],

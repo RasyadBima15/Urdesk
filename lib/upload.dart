@@ -19,6 +19,9 @@ class _UploadState extends State<Upload> {
   File? imageTop;
   File? imageFront;
   CloudApi? api;
+  String? timestamp;
+  String? fileNameTop;
+  String? fileNameFront;
 
   static final String? jsonFile = dotenv.env['JSON_FILE_PATH'];
   static const String projectId = 'UrDesk';
@@ -154,19 +157,19 @@ class _UploadState extends State<Upload> {
         },
       );
 
-      // final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
       // Upload images if they exist
-      // if (imageTop != null) {
-      //   final fileName = '${timestamp}_top.jpg'; // Updated filename format
-      //   await api!.save(fileName, await imageTop!.readAsBytes(),
-      //       folderPrefix: timestamp);
-      // }
-      // if (imageFront != null) {
-      //   final fileName = '${timestamp}_front.jpg'; // Updated filename format
-      //   await api!.save(fileName, await imageFront!.readAsBytes(),
-      //       folderPrefix: timestamp);
-      // }
+      if (imageTop != null) {
+        fileNameTop = '${timestamp}_top.jpg'; // Updated filename format
+        await api!.save(fileNameTop, await imageTop!.readAsBytes(),
+            folderPrefix: timestamp);
+      }
+      if (imageFront != null) {
+        fileNameFront = '${timestamp}_front.jpg'; // Updated filename format
+        await api!.save(fileNameFront, await imageFront!.readAsBytes(),
+            folderPrefix: timestamp);
+      }
     } catch (e) {
       print('Error during image analysis: $e');
       Fluttertoast.showToast(
@@ -185,7 +188,13 @@ class _UploadState extends State<Upload> {
         // Navigate to result page
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => Result(),
+            builder: (context) => Result(
+              imageTop: imageTop,
+              imageFront: imageFront,
+              fileTop: fileNameTop,
+              fileFront: fileNameFront,
+              timestamp: timestamp,
+            ),
           ),
         ); // Ensure dialog is closed if error occurs
       }

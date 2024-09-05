@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, prefer_const_constructors
+// ignore_for_file: unused_field, prefer_const_constructors, unused_element, prefer_final_fields
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -12,11 +12,14 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   String? _username;
+  int _postCount = 0;
+  List<String> _imageUrls = [];
 
   @override
   void initState() {
     super.initState();
     _loadUsername();
+    _loadPostCountAndImages();
   }
 
   Future<void> _loadUsername() async {
@@ -24,6 +27,29 @@ class _ProfileState extends State<Profile> {
     setState(() {
       _username = username ?? 'Unknown User';
     });
+  }
+
+  Future<void> _loadPostCountAndImages() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final uid = user.uid;
+      final databaseReference = FirebaseDatabase.instance.ref('images/$uid');
+      final snapshot = await databaseReference.get();
+      if (snapshot.exists) {
+        // Count the number of images (posts) and retrieve image URLs
+        final data = snapshot.value as Map;
+        setState(() {
+          _postCount = data.length; // Count the number of posts
+          _imageUrls = data.values
+              .map<String>((imageData) => imageData['imageUrl'] as String)
+              .toList(); // Get image URLs
+        });
+      } else {
+        setState(() {
+          _postCount = 0; // No posts found
+        });
+      }
+    }
   }
 
   Future<String?> getUsername() async {
@@ -141,11 +167,9 @@ class _ProfileState extends State<Profile> {
       body: Column(
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+            padding: const EdgeInsets.all(20.0),
             child: Row(
               children: [
-                // Profil Picture dan Edit Icon
                 Stack(
                   children: [
                     Container(
@@ -156,8 +180,7 @@ class _ProfileState extends State<Profile> {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: AssetImage(
-                              "images/user_logo.jpg"), // Profil picture
+                          image: AssetImage("images/user_logo.jpg"),
                         ),
                       ),
                     ),
@@ -172,23 +195,18 @@ class _ProfileState extends State<Profile> {
                           shape: BoxShape.circle,
                           border: Border.all(width: 2, color: Colors.white),
                         ),
-                        child: Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                        child: Icon(Icons.edit, color: Colors.white, size: 16),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(width: 16),
-                // Nama dan Jumlah Postingan
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _username ?? "", // Menampilkan username dari Firebase
+                        _username ?? "",
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.white,
@@ -197,11 +215,8 @@ class _ProfileState extends State<Profile> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "0 Postingan", // Jumlah postingan
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
+                        "$_postCount Postingan",
+                        style: TextStyle(fontSize: 14, color: Colors.white),
                       ),
                     ],
                   ),
@@ -209,10 +224,29 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           ),
-          Divider(
-            color: Colors.grey,
-            thickness: 0.2,
-          )
+          Divider(color: Colors.grey, thickness: 0.2),
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(10),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // 2 columns of images
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemCount: _imageUrls.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    image: DecorationImage(
+                      image: NetworkImage(_imageUrls[index]),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

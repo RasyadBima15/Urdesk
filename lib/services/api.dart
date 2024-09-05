@@ -36,8 +36,8 @@ class CloudApi {
     }
   }
 
-  Future<ObjectInfo> save(String name, Uint8List imgBytes,
-      {String folderPrefix = ''}) async {
+  Future<ObjectInfo> save(String? name, Uint8List imgBytes,
+      {String? folderPrefix = ''}) async {
     if (client == null) {
       print('Client not initialized.');
       throw Exception('Client is not initialized.');
@@ -48,14 +48,14 @@ class CloudApi {
       final bucket = storage.bucket(bucketName);
 
       // Gabungkan folderPrefix dengan nama file untuk menyimulasikan struktur folder
-      final fullPath = folderPrefix.isNotEmpty ? '$folderPrefix/$name' : name;
+      final fullPath = folderPrefix!.isNotEmpty ? '$folderPrefix/$name' : name;
 
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final type = lookupMimeType(name);
+      final type = lookupMimeType(name!);
 
       // Unggah gambar ke cloud storage
       ObjectInfo result = await bucket.writeBytes(
-        fullPath,
+        fullPath!,
         imgBytes,
         metadata: ObjectMetadata(
           contentType: type ?? 'application/octet-stream',
