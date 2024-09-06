@@ -15,6 +15,7 @@ class Result extends StatelessWidget {
   final String? fileTop;
   final String? fileFront;
   final String? timestamp;
+  final int? rating = 2;
 
   const Result(
       {Key? key,
@@ -194,11 +195,9 @@ class Result extends StatelessWidget {
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.bjkhkhukhulvgrgiuegliewrguegoiehlugwitghjekgulieurghihprgtjireg;owij;eorglewrhfloewrvhiulerv'),
             _buildCriteriaCard(2, 'Kepadatan Objek Keseluruhan',
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
-            _buildCriteriaCard(3, 'Keberadaan Objek yang Tercecer',
+            _buildCriteriaCard(3, 'Objek Yang Tidak Dihendaki',
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
-            _buildCriteriaCard(4, 'Objek Yang Tidak Dihendaki',
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
-            _buildCriteriaCard(5, 'Kehadiran Sampah',
+            _buildCriteriaCard(4, 'Kehadiran Sampah',
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
             const SizedBox(height: 16),
             Center(
@@ -219,12 +218,7 @@ class Result extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment
                         .center, // Center the stars horizontally
-                    children: const [
-                      Icon(Icons.star, color: Colors.yellow, size: 32),
-                      Icon(Icons.star, color: Colors.yellow, size: 32),
-                      Icon(Icons.star, color: Colors.yellow, size: 32),
-                      Icon(Icons.star_border, color: Colors.yellow, size: 32),
-                    ],
+                    children: _buildRatingStars(rating!),
                   ),
                 ],
               ),
@@ -300,6 +294,36 @@ class Result extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
+                  // Conditionally display images based on the number
+                  if (number == 2 || number == 3 || number == 4) ...[
+                    const SizedBox(height: 7),
+                    Container(
+                      height: 150,
+                      width: 275,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                          image: FileImage(
+                              imageFront!), // Assuming imageFront is defined
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 150,
+                      width: 275,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                          image: FileImage(
+                              imageTop!), // Assuming imageTop is defined
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   Text(
                     description,
                     style: const TextStyle(
@@ -307,6 +331,49 @@ class Result extends StatelessWidget {
                       fontSize: 14,
                     ),
                   ),
+                  if (number == 3) ...[
+                    const SizedBox(height: 15),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Rekomendasi Produk',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Berikut Rekomendasi Produk yang mungkin anda gunakan untuk merapihkan meja anda!',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        // Ensure that the ListView has a fixed height
+                        SizedBox(
+                          height:
+                              150, // Fixed height for the horizontal ListView
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              _cardProduct(),
+                              SizedBox(width: 16),
+                              _cardProduct(),
+                              SizedBox(width: 16),
+                              _cardProduct(),
+                              SizedBox(width: 16),
+                              _cardProduct(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ]
                 ],
               ),
             ),
@@ -314,5 +381,39 @@ class Result extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _cardProduct() {
+    return Container(
+      width: 220, // Fixed width for each product image
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        image: DecorationImage(
+          image:
+              AssetImage('images/atas.png'), // Replace with actual image path
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildRatingStars(int rating) {
+    int fullStars =
+        rating.floor(); // Number of full stars (e.g., 3.75 -> 3 full stars)
+    int emptyStars = 4 - fullStars; // The rest are empty stars
+
+    List<Widget> stars = [];
+
+    // Add full stars
+    for (int i = 0; i < fullStars; i++) {
+      stars.add(Icon(Icons.star, color: Colors.yellow, size: 30));
+    }
+
+    // Add empty stars (if any)
+    for (int i = 0; i < emptyStars; i++) {
+      stars.add(Icon(Icons.star_border, color: Colors.yellow, size: 30));
+    }
+
+    return stars;
   }
 }

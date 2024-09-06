@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'login.dart'; // Import the login screen
 import 'services/auth_service.dart'; // Import AuthService
-import 'package:firebase_database/firebase_database.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
