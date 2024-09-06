@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unused_element
+// ignore_for_file: prefer_const_constructors, unused_element, sized_box_for_whitespace
 
 import 'dart:io';
 
@@ -192,13 +192,13 @@ class Result extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildCriteriaCard(1, 'Kerapihan',
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.bjkhkhukhulvgrgiuegliewrguegoiehlugwitghjekgulieurghihprgtjireg;owij;eorglewrhfloewrvhiulerv'),
+                'Meja Anda terdeteksi berantakan, mungkin ini saat yang tepat untuk merapikannya. Lingkungan kerja yang kotor dapat mengganggu konsentrasi dan menurunkan efisiensi. Dengan merapikan meja, Anda bisa menciptakan suasana yang lebih mendukung untuk berkembang dan mempercepat pertumbuhan bakat Anda.'),
             _buildCriteriaCard(2, 'Kepadatan Objek Keseluruhan',
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+                'Saya telah menandai barang-barang yang penting dan mendukung produktivitas Anda—sisanya, saya sarankan untuk disingkirkan. Meja yang terlalu penuh bisa membuat ruang terasa sempit dan membatasi fleksibilitas Anda saat bekerja. Cobalah mengurangi jumlah barang di meja agar lingkungan kerja terasa lebih nyaman dan mendukung produktivitas, sehingga Anda bisa lebih fokus dan terus mengembangkan potensi diri!'),
             _buildCriteriaCard(3, 'Objek Yang Tidak Dihendaki',
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+                'Terlihat ada tumpukan barang yang tidak teratur di meja Anda, seperti buku atau alat tulis yang berserakan. Lingkungan kerja yang berantakan bisa menghambat fokus dan mengurangi produktivitas. Dengan merapikan barang-barang ini, Anda bisa menciptakan suasana yang lebih kondusif untuk berkembang dan mencapai potensi maksimal Anda.'),
             _buildCriteriaCard(4, 'Kehadiran Sampah',
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+                'Bagus sekali! Meja Anda bersih dan bebas dari sampah. Lingkungan kerja yang bersih membantu menjaga konsentrasi dan membuat suasana kerja lebih nyaman. Terus jaga kebersihan ini agar mendukung produktivitas dan pertumbuhan bakat Anda!'),
             const SizedBox(height: 16),
             Center(
               child: Column(
@@ -303,8 +303,7 @@ class Result extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         image: DecorationImage(
-                          image: FileImage(
-                              imageFront!), // Assuming imageFront is defined
+                          image: AssetImage("images/hasil2.jpeg"),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -316,13 +315,13 @@ class Result extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         image: DecorationImage(
-                          image: FileImage(
-                              imageTop!), // Assuming imageTop is defined
+                          image: AssetImage(
+                              "images/hasil.jpeg"), // Assuming imageTop is defined
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 15),
                   ],
                   Text(
                     description,
@@ -340,7 +339,7 @@ class Result extends StatelessWidget {
                           'Rekomendasi Produk',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 22, // Slightly larger for emphasis
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -352,21 +351,25 @@ class Result extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-                        SizedBox(height: 16),
-                        // Ensure that the ListView has a fixed height
                         SizedBox(
-                          height:
-                              150, // Fixed height for the horizontal ListView
+                          height: 20,
+                        ),
+                        SizedBox(
+                          height: 220, // Adjust height for better spacing
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: [
-                              _cardProduct(),
+                              _cardProduct(
+                                  "images/shopee.jpeg", "Shopee", "Rp.120.000"),
                               SizedBox(width: 16),
-                              _cardProduct(),
+                              _cardProduct(
+                                  "images/lazada.jpeg", "Lazada", "Rp.25.000"),
                               SizedBox(width: 16),
-                              _cardProduct(),
+                              _cardProduct("images/tokopedia.jpeg", "Tokopedia",
+                                  "Rp.55.000"),
                               SizedBox(width: 16),
-                              _cardProduct(),
+                              _cardProduct(
+                                  "images/lazada2.jpeg", "Lazada", "Rp.25.000"),
                             ],
                           ),
                         ),
@@ -383,16 +386,51 @@ class Result extends StatelessWidget {
     );
   }
 
-  Widget _cardProduct() {
+  Widget _cardProduct(String filename, String toko, String harga) {
     return Container(
-      width: 220, // Fixed width for each product image
+      width: 150, // More compact product width
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        image: DecorationImage(
-          image:
-              AssetImage('images/atas.png'), // Replace with actual image path
-          fit: BoxFit.cover,
+        border: Border.all(
+          color: Colors.white, // Color of the border
+          width: 2.0, // Thickness of the border
         ),
+        borderRadius: BorderRadius.circular(8), // Rounded corners for the card
+      ),
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 1, // Ensure a square image
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ), // Match with card's top corners
+                image: DecorationImage(
+                  image: AssetImage(filename), // Actual image path
+                  fit: BoxFit.cover, // Contain to prevent distortion
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 8), // Add space between the image and the text
+          Text(
+            harga,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            toko,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }

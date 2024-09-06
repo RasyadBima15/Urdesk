@@ -1,5 +1,6 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, no_leading_underscores_for_local_identifiers, use_build_context_synchronously
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, prefer_typing_uninitialized_variables
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import 'package:urdesk/result.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:urdesk/services/api.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
 class Upload extends StatefulWidget {
   @override
@@ -22,7 +24,7 @@ class _UploadState extends State<Upload> {
   String? timestamp;
   String? fileNameTop;
   String? fileNameFront;
-
+  List<Map<String, dynamic>> parsedPredictions = [];
   static final String? jsonFile = dotenv.env['JSON_FILE_PATH'];
   static const String projectId = 'UrDesk';
   static const String bucketName = 'urdesk-data';
@@ -171,30 +173,92 @@ class _UploadState extends State<Upload> {
         await api!.save(fileNameFront, await imageFront!.readAsBytes(),
             folderPrefix: timestamp);
       }
+      // Now, trigger the backend API with timestamp
+      var apiUrl =
+          'https://asia-southeast1-urdesk.cloudfunctions.net/predict-image'; // Replace with your API URL
+      var response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'file_name': timestamp, // Pass the timestamp as file_name
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("API call successful: ${response.body}");
+        final data = jsonDecode(response.body);
+
+        if (data['error'] == 'no-error') {
+          var predictions = data['predictions'];
+
+          // Clear previous predictions
+          parsedPredictions.clear();
+
+          // Add each prediction to the parsed list
+          for (var prediction in predictions) {
+            var message = prediction['message'];
+            var listDetection = prediction['list_detection'];
+            var poin = prediction['poin'];
+            var imageUrl = prediction['imageURL'];
+
+            // print(message);
+            // print(listDetection);
+            // print(poin);
+            // print(imageUrl);
+            // print(parsedPredictions);
+
+            // Create a Prediction instance
+            parsedPredictions.add({
+              'message': message,
+              'listDetection': listDetection,
+              'poin': poin,
+              'imageUrl': imageUrl,
+            });
+          }
+        } else {
+          Fluttertoast.showToast(
+            msg: "Prediction failed: ${data['error']}",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Color.fromARGB(255, 46, 46, 46),
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+      } else {
+        // Handle errors from the backend
+        print("Error from API: ${response.statusCode} - ${response.body}");
+        Fluttertoast.showToast(
+          msg: "Error during analysis. Please try again.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
     } catch (e) {
       print('Error during image analysis: $e');
-      Fluttertoast.showToast(
-        msg: "Error processing images. Please try again.",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Color.fromARGB(255, 46, 46, 46),
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
     } finally {
       if (Navigator.canPop(context)) {
         // Close loading dialog
         Navigator.of(context).pop();
 
+        print(fileNameTop);
+        print(fileNameFront);
+        print(timestamp);
+        print(parsedPredictions);
+
         // Navigate to result page
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => Result(
-              imageTop: imageTop,
               imageFront: imageFront,
+              imageTop: imageTop,
               fileTop: fileNameTop,
               fileFront: fileNameFront,
               timestamp: timestamp,
+              // predictions: parsedPredictions,
             ),
           ),
         ); // Ensure dialog is closed if error occurs
@@ -515,4 +579,18 @@ class CameraButton extends StatelessWidget {
       ],
     );
   }
+}
+
+class Prediction {
+  final String message;
+  final List<dynamic> listDetection;
+  final int poin;
+  final List<dynamic> imageUrl;
+
+  Prediction({
+    required this.message,
+    required this.listDetection,
+    required this.poin,
+    required this.imageUrl,
+  });
 }

@@ -48,6 +48,7 @@ dependencies:
   path_provider: 
   flutter_downloader: 
   permission_handler: 
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +79,12 @@ flutter:
     - images/atas.png
     - images/urdesk-44d539a7521e.json
     - images/user_logo.jpg
+    - images/hasil.jpeg
+    - images/lazada2.jpeg
+    - images/tokopedia.jpeg
+    - images/lazada.jpeg
+    - images/shopee.jpeg
+    - images/hasil2.jpeg
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
