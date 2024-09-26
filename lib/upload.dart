@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, prefer_typing_uninitialized_variables, avoid_print
 
 import 'dart:convert';
 import 'dart:io';
@@ -191,6 +191,8 @@ class _UploadState extends State<Upload> {
         if (data['error'] == 'no-error') {
           var predictions = data['predictions'];
 
+          // print(predictions);
+
           // Clear previous predictions
           parsedPredictions.clear();
 
@@ -201,10 +203,10 @@ class _UploadState extends State<Upload> {
             var poin = prediction['poin'];
             var imageUrl = prediction['imageURL'];
 
-            // print(message);
-            // print(listDetection);
-            // print(poin);
-            // print(imageUrl);
+            print(message);
+            print(listDetection);
+            print(poin);
+            print(imageUrl);
             // print(parsedPredictions);
 
             // Create a Prediction instance
@@ -244,21 +246,21 @@ class _UploadState extends State<Upload> {
         // Close loading dialog
         Navigator.of(context).pop();
 
-        print(fileNameTop);
-        print(fileNameFront);
-        print(timestamp);
-        print(parsedPredictions);
+        // print(fileNameTop);
+        // print(fileNameFront);
+        // print(timestamp);
+        // print(parsedPredictions);
 
         // Navigate to result page
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => Result(
+              parsedPredictions: parsedPredictions,
               imageFront: imageFront,
               imageTop: imageTop,
-              fileTop: fileNameTop,
               fileFront: fileNameFront,
+              fileTop: fileNameTop,
               timestamp: timestamp,
-              // predictions: parsedPredictions,
             ),
           ),
         ); // Ensure dialog is closed if error occurs

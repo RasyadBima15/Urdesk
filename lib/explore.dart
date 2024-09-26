@@ -249,14 +249,6 @@ class _ExploreState extends State<Explore> {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Rating: ${image.rating.toStringAsFixed(2)}/4.00', // Display the rating
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 17),
-                ),
                 SizedBox(height: 20),
                 Container(
                   height: 190,

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unused_element, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, unused_element, sized_box_for_whitespace, prefer_is_empty, use_build_context_synchronously
 
 import 'dart:io';
 
@@ -15,16 +15,19 @@ class Result extends StatelessWidget {
   final String? fileTop;
   final String? fileFront;
   final String? timestamp;
-  final int? rating = 2;
+  final List<Map<String, dynamic>> parsedPredictions;
 
-  const Result(
-      {Key? key,
-      required this.imageTop,
-      required this.imageFront,
-      required this.fileTop,
-      required this.fileFront,
-      required this.timestamp})
-      : super(key: key);
+  Result(
+      {required this.parsedPredictions,
+      this.imageTop,
+      this.imageFront,
+      this.fileTop,
+      this.fileFront,
+      this.timestamp});
+
+  num get totalRating {
+    return parsedPredictions.fold(0, (sum, item) => sum + item['poin']);
+  }
 
   Future<String> _uploadImageToFirebase(File imageFile, String fileName) async {
     try {
@@ -51,7 +54,7 @@ class Result extends StatelessWidget {
 
   Future<void> _saveImageMetadata(
       {required String imageUrl,
-      required String rating,
+      required num rating,
       required String timestamp}) async {
     final user = FirebaseAuth.instance.currentUser;
     String uid = user!.uid;
@@ -126,11 +129,11 @@ class Result extends StatelessWidget {
                   // Simpan metadata gambar untuk keduanya
                   await _saveImageMetadata(
                       imageUrl: downloadUrlTop,
-                      rating: '4',
+                      rating: totalRating,
                       timestamp: timestamp!);
                   await _saveImageMetadata(
                       imageUrl: downloadUrlFront,
-                      rating: '4',
+                      rating: totalRating,
                       timestamp: timestamp!);
 
                   Fluttertoast.showToast(
@@ -171,63 +174,93 @@ class Result extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white, // Ubah warna tombol back menjadi putih
+        iconTheme: const IconThemeData(
+          color: Colors.white,
         ),
         backgroundColor: Colors.black,
         elevation: 0,
         title: Row(
           children: [
             Image.asset(
-              'images/urdesk.png', // Ganti dengan path logo Anda
+              'images/urdesk.png',
               height: 30,
             ),
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        padding:
-            const EdgeInsets.only(left: 16, top: 20, right: 16, bottom: 35),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: ListView(
           children: [
-            _buildCriteriaCard(1, 'Kerapihan',
-                'Meja Anda terdeteksi berantakan, mungkin ini saat yang tepat untuk merapikannya. Lingkungan kerja yang kotor dapat mengganggu konsentrasi dan menurunkan efisiensi. Dengan merapikan meja, Anda bisa menciptakan suasana yang lebih mendukung untuk berkembang dan mempercepat pertumbuhan bakat Anda.'),
-            _buildCriteriaCard(2, 'Kepadatan Objek Keseluruhan',
-                'Saya telah menandai barang-barang yang penting dan mendukung produktivitas Anda—sisanya, saya sarankan untuk disingkirkan. Meja yang terlalu penuh bisa membuat ruang terasa sempit dan membatasi fleksibilitas Anda saat bekerja. Cobalah mengurangi jumlah barang di meja agar lingkungan kerja terasa lebih nyaman dan mendukung produktivitas, sehingga Anda bisa lebih fokus dan terus mengembangkan potensi diri!'),
-            _buildCriteriaCard(3, 'Objek Yang Tidak Dihendaki',
-                'Terlihat ada tumpukan barang yang tidak teratur di meja Anda, seperti buku atau alat tulis yang berserakan. Lingkungan kerja yang berantakan bisa menghambat fokus dan mengurangi produktivitas. Dengan merapikan barang-barang ini, Anda bisa menciptakan suasana yang lebih kondusif untuk berkembang dan mencapai potensi maksimal Anda.'),
-            _buildCriteriaCard(4, 'Kehadiran Sampah',
-                'Bagus sekali! Meja Anda bersih dan bebas dari sampah. Lingkungan kerja yang bersih membantu menjaga konsentrasi dan membuat suasana kerja lebih nyaman. Terus jaga kebersihan ini agar mendukung produktivitas dan pertumbuhan bakat Anda!'),
-            const SizedBox(height: 16),
             Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
                     'Rating',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(
-                      height: 8), // Add some spacing between the text and stars
+                  const SizedBox(height: 8),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .center, // Center the stars horizontally
-                    children: _buildRatingStars(rating!),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _buildRatingStars(totalRating),
                   ),
+                  const SizedBox(height: 15),
+                  Divider(
+                    thickness: 0.25,
+                  ),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'Hasil Analisis',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            // Kriteria
+            _buildCriteriaCard(
+              1,
+              'Kerapihan',
+              parsedPredictions.isNotEmpty && parsedPredictions.length > 0
+                  ? parsedPredictions[0]['message']
+                  : 'Tidak ada pesan.',
+            ),
+            _buildCriteriaCard(
+              2,
+              'Kepadatan Objek Keseluruhan',
+              parsedPredictions.isNotEmpty && parsedPredictions.length > 1
+                  ? parsedPredictions[1]['message']
+                  : 'Tidak ada pesan.',
+            ),
+            _buildCriteriaCard(
+              3,
+              'Objek Yang Tidak Dihendaki',
+              parsedPredictions.isNotEmpty && parsedPredictions.length > 2
+                  ? parsedPredictions[2]['message']
+                  : 'Tidak ada pesan.',
+            ),
+            _buildCriteriaCard(
+              4,
+              'Kehadiran Sampah',
+              parsedPredictions.isNotEmpty && parsedPredictions.length > 3
+                  ? parsedPredictions[3]['message']
+                  : 'Tidak ada pesan.',
+            ),
+            const SizedBox(height: 24), // Space before button
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Post action here
                   _showConfirmationDialog(context);
                 },
                 style: ElevatedButton.styleFrom(
@@ -239,19 +272,19 @@ class Result extends StatelessWidget {
                   ),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize
-                      .min, // Adjusts the button size to fit its content
+                  mainAxisSize: MainAxisSize.min,
                   children: const [
                     Text(
                       'Post',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    SizedBox(width: 15), // Adds spacing between text and icon
+                    SizedBox(width: 8), // Space between text and icon
                     Icon(Icons.arrow_outward_outlined, color: Colors.white),
                   ],
                 ),
               ),
-            )
+            ),
+            const SizedBox(height: 10), // Extra space at the bottom
           ],
         ),
       ),
@@ -269,23 +302,22 @@ class Result extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              backgroundColor: Colors.white,
-              radius: 16,
-              child: Text(
-                number.toString(),
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 16,
+                  child: Text(
+                    number.toString(),
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
                     title,
                     style: const TextStyle(
                       color: Colors.white,
@@ -293,93 +325,80 @@ class Result extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // Conditionally display images based on the number
-                  if (number == 2 || number == 3 || number == 4) ...[
-                    const SizedBox(height: 7),
-                    Container(
-                      height: 150,
-                      width: 275,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        image: DecorationImage(
-                          image: AssetImage("images/hasil2.jpeg"),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 150,
-                      width: 275,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        image: DecorationImage(
-                          image: AssetImage(
-                              "images/hasil.jpeg"), // Assuming imageTop is defined
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                  ],
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Gambar yang lebih terintegrasi
+            if (number == 2 || number == 3 || number == 4) ...[
+              const SizedBox(height: 7),
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: AssetImage("images/hasil2.jpeg"),
+                    fit: BoxFit.cover,
                   ),
-                  if (number == 3) ...[
-                    const SizedBox(height: 15),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Rekomendasi Produk',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22, // Slightly larger for emphasis
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Berikut Rekomendasi Produk yang mungkin anda gunakan untuk merapihkan meja anda!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          height: 220, // Adjust height for better spacing
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              _cardProduct(
-                                  "images/shopee.jpeg", "Shopee", "Rp.120.000"),
-                              SizedBox(width: 16),
-                              _cardProduct(
-                                  "images/lazada.jpeg", "Lazada", "Rp.25.000"),
-                              SizedBox(width: 16),
-                              _cardProduct("images/tokopedia.jpeg", "Tokopedia",
-                                  "Rp.55.000"),
-                              SizedBox(width: 16),
-                              _cardProduct(
-                                  "images/lazada2.jpeg", "Lazada", "Rp.25.000"),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                  ]
-                ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: AssetImage("images/hasil.jpeg"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+            ],
+            Text(
+              description,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
               ),
             ),
+            if (number == 3) ...[
+              const SizedBox(height: 15),
+              Text(
+                'Rekomendasi Produk',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Berikut Rekomendasi Produk yang mungkin anda gunakan untuk merapihkan meja anda!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 220, // Adjust height for better spacing
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _cardProduct("images/shopee.jpeg", "Shopee", "Rp.120.000"),
+                    SizedBox(width: 16),
+                    _cardProduct("images/lazada.jpeg", "Lazada", "Rp.25.000"),
+                    SizedBox(width: 16),
+                    _cardProduct(
+                        "images/tokopedia.jpeg", "Tokopedia", "Rp.55.000"),
+                    SizedBox(width: 16),
+                    _cardProduct("images/lazada2.jpeg", "Lazada", "Rp.25.000"),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
           ],
         ),
       ),
@@ -435,7 +454,7 @@ class Result extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildRatingStars(int rating) {
+  List<Widget> _buildRatingStars(num rating) {
     int fullStars =
         rating.floor(); // Number of full stars (e.g., 3.75 -> 3 full stars)
     int emptyStars = 4 - fullStars; // The rest are empty stars
